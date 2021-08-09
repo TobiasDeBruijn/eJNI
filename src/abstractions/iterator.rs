@@ -2,6 +2,7 @@ use jni::errors::Result;
 use jni::JNIEnv;
 use crate::object::Object;
 use crate::class::Class;
+use jni::sys::_jobject;
 
 /// A wrapper for a java.util.Iterator
 pub struct Iterator<'a> {
@@ -10,6 +11,12 @@ pub struct Iterator<'a> {
 
     /// The Class the iterator iterates over
     pub class: Class<'a>
+}
+
+impl<'a> Into<*mut _jobject> for Iterator<'a> {
+    fn into(self) -> *mut _jobject {
+        self.inner.obj.into_inner()
+    }
 }
 
 impl<'a> Iterator<'a> {

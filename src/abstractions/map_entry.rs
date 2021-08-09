@@ -2,6 +2,7 @@ use crate::object::Object;
 use crate::class::Class;
 use jni::JNIEnv;
 use jni::errors::Result;
+use jni::sys::_jobject;
 
 /// Wrapper around Map.Entry
 pub struct MapEntry<'a> {
@@ -13,6 +14,12 @@ pub struct MapEntry<'a> {
 
     /// The value Class
     pub v_class: Class<'a>
+}
+
+impl<'a> Into<*mut _jobject> for MapEntry<'a> {
+    fn into(self) -> *mut _jobject {
+        self.inner.obj.into_inner()
+    }
 }
 
 impl<'a> MapEntry<'a> {

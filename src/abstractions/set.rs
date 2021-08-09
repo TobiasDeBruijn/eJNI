@@ -3,6 +3,7 @@ use crate::class::Class;
 use jni::JNIEnv;
 use jni::errors::Result;
 use crate::abstractions::iterator::Iterator;
+use jni::sys::_jobject;
 
 /// Wrapper around java.util.Set
 pub struct Set<'a> {
@@ -11,6 +12,12 @@ pub struct Set<'a> {
 
     /// The Class contained in the Set
     pub class: Class<'a>
+}
+
+impl<'a> Into<*mut _jobject> for Set<'a> {
+    fn into(self) -> *mut _jobject {
+        self.inner.obj.into_inner()
+    }
 }
 
 impl<'a> Set<'a> {

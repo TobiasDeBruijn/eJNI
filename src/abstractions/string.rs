@@ -4,6 +4,7 @@ use jni::JNIEnv;
 use jni::errors::Result;
 use jni::strings::JNIString;
 use jni::objects::{JString, JValue};
+use jni::sys::_jobject;
 
 /// A wrapper for a java.lang.String
 pub struct JavaString<'a>(pub Object<'a>);
@@ -11,6 +12,12 @@ pub struct JavaString<'a>(pub Object<'a>);
 impl<'a> Into<JValue<'a>> for JavaString<'a> {
     fn into(self) -> JValue<'a> {
         self.0.into()
+    }
+}
+
+impl<'a> Into<*mut _jobject> for JavaString<'a> {
+    fn into(self) -> *mut _jobject {
+        self.inner.obj.into_inner()
     }
 }
 

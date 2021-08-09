@@ -2,6 +2,7 @@ use jni::objects::{JObject, JValue, JMethodID, JClass};
 use jni::JNIEnv;
 use jni::errors::Result;
 use crate::class::Class;
+use jni::sys::_jobject;
 
 /// Describes a Java Object
 pub struct Object<'a> {
@@ -18,6 +19,12 @@ impl<'a> Into<JValue<'a>> for Object<'a> {
 impl<'a> Into<JValue<'a>> for &Object<'a> {
     fn into(self) -> JValue<'a> {
         JValue::Object(*&self.obj)
+    }
+}
+
+impl<'a> Into<*mut _jobject> for Object<'a> {
+    fn into(self) -> *mut _jobject {
+        self.obj.into_inner()
     }
 }
 

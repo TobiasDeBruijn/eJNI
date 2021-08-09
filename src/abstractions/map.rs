@@ -3,6 +3,7 @@ use jni::errors::Result;
 use jni::JNIEnv;
 use crate::class::Class;
 use crate::abstractions::set::Set;
+use jni::sys::_jobject;
 
 /// Wrapper around java.util.Map
 pub struct Map<'a> {
@@ -14,6 +15,12 @@ pub struct Map<'a> {
 
     /// The Value Class
     pub v_class: Class<'a>
+}
+
+impl<'a> Into<*mut _jobject> for Map<'a> {
+    fn into(self) -> *mut _jobject {
+        self.inner.obj.into_inner()
+    }
 }
 
 impl<'a> Map<'a> {

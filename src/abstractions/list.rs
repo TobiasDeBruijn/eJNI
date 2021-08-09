@@ -2,6 +2,7 @@ use crate::object::Object;
 use crate::class::Class;
 use jni::{JNIEnv, errors::Result};
 use jni::objects::JValue;
+use jni::sys::_jobject;
 
 /// A wrapper around `java.util.List`
 pub struct List<'a> {
@@ -10,6 +11,12 @@ pub struct List<'a> {
 
     /// The type contained in the List
     pub class: Class<'a>
+}
+
+impl<'a> Into<*mut _jobject> for List<'a> {
+    fn into(self) -> *mut _jobject {
+        self.inner.obj.into_inner()
+    }
 }
 
 impl<'a> List<'a> {

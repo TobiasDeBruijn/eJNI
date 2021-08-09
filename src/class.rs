@@ -3,6 +3,7 @@ use jni::errors::Result;
 use jni::JNIEnv;
 use crate::abstractions::string::JavaString;
 use crate::object::Object;
+use jni::sys::_jobject;
 
 /// Class describes java.lang.Class, with getters for often used classes from the Java standard library.
 #[repr(transparent)]
@@ -11,6 +12,12 @@ pub struct Class<'a>(pub JClass<'a>);
 impl<'a> From<JClass<'a>> for Class<'a> {
     fn from(a: JClass<'a>) -> Self {
         Self(a)
+    }
+}
+
+impl<'a> Into<*mut _jobject> for Class<'a> {
+    fn into(self) -> *mut _jobject {
+        self.0.into_inner()
     }
 }
 
