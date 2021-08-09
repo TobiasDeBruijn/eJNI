@@ -1,7 +1,14 @@
 pub mod class;
+pub use class::*;
+
 pub mod object;
+pub use object::*;
+
 pub mod primitives;
+pub use primitives::*;
+
 pub mod abstractions;
+pub use abstractions::*;
 
 #[cfg(test)]
 mod test {
