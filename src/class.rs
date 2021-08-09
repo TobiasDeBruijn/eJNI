@@ -1,6 +1,8 @@
 use jni::objects::{JClass, JObject};
 use jni::errors::Result;
 use jni::JNIEnv;
+use crate::abstractions::string::JavaString;
+use crate::object::Object;
 
 /// Class describes java.lang.Class, with getters for often used classes from the Java standard library.
 #[repr(transparent)]
@@ -424,6 +426,75 @@ impl<'a> Class<'a> {
         let arr_class = env.get_object_class(arr)?;
         Ok(Self(arr_class))
     }
+
+    /// Check if the current Class can be safely cast to the the other Class. E.g `java.util.HashMap` is compatible with `java.util.Map`
+    pub fn is_compatible(&self, env: &JNIEnv<'a>, other: &Class<'a>) -> Result<bool> {
+        env.is_assignable_from(self.0, other.0)
+    }
+
+    /// Get the superclass of the current Class. Returns None if the current class has no superclass other than java.lang.Object, or if the current Class is an interface
+    pub fn get_superclass(&self, env: &JNIEnv<'a>) -> Result<Option<Class<'a>>> {
+        let maybe_superclass = env.get_superclass(self.0)?;
+        match maybe_superclass.is_null() {
+            true => Ok(None),
+            false => Ok(Some(maybe_superclass.into()))
+        }
+    }
+
+    /// Get the Class name. Invokes `Class#getName()`
+    pub fn get_name(&self, env: &JNIEnv<'a>) -> Result<String> {
+        let class_name_object = env.call_method(self.0, "getName", "()Ljava/lang/String;", &[])?.l()?;
+        let class_name_string = JavaString::new(Object::new(class_name_object, Class::String(env)?));
+        class_name_string.into_rust(env)
+    }
+
+    /// The Java primitive `int`
+    pub fn int(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "int")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `long`
+    pub fn long(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "long")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `byte`
+    pub fn byte(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "byte")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `boolean`
+    pub fn boolean(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "boolean")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `float`
+    pub fn float(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "float")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `double`
+    pub fn double(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "double")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `short`
+    pub fn short(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "short")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
+
+    /// The Java primitive `char`
+    pub fn char(env: &JNIEnv<'a>) -> Result<Self> {
+        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "char")?.into()])?;
+        Ok(Self(JClass::from(int_class.l()?)))
+    }
 }
 
 #[cfg(test)]
@@ -431,6 +502,7 @@ mod test {
     #![allow(non_snake_case)]
     use crate::test::*;
     use super::Class;
+    use jni::errors::Result;
 
     #[test]
     fn Byte() {
@@ -1003,5 +1075,73 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         assert!(Class::BigInteger(&env).unwrap().array_type(&env).is_ok());
+    }
+
+    #[test]
+    fn is_compatible() -> Result<()> {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+
+        let hashmap = crate::abstractions::map::Map::new_HashMap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
+
+        let is_compat = hashmap.inner.class.is_compatible(&env, &Class::Map(&env)?)?;
+        assert!(is_compat);
+        Ok(())
+    }
+
+    #[test]
+    fn int() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::int(&env).is_ok());
+    }
+
+    #[test]
+    fn long() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::long(&env).is_ok());
+    }
+
+    #[test]
+    fn float() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::float(&env).is_ok());
+    }
+
+    #[test]
+    fn double() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::double(&env).is_ok());
+    }
+
+    #[test]
+    fn byte() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::byte(&env).is_ok());
+    }
+
+    #[test]
+    fn boolean() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::boolean(&env).is_ok());
+    }
+
+    #[test]
+    fn char() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::char(&env).is_ok());
+    }
+
+    #[test]
+    fn short() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::short(&env).is_ok());
     }
 }

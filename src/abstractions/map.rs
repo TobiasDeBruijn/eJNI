@@ -17,6 +17,8 @@ pub struct Map<'a> {
 }
 
 impl<'a> Map<'a> {
+    #![allow(non_snake_case)]
+
     /// Create a Map wrapper from an existing Map object. The caller must guarantee that the passed in Object implements Map and is not null.
     pub fn new(object: Object<'a>, k_class: Class<'a>, v_class: Class<'a>) -> Self {
         Self {
@@ -24,6 +26,17 @@ impl<'a> Map<'a> {
             k_class,
             v_class
         }
+    }
+
+    /// Create a Map wrapper for a new HashMap
+    pub fn new_HashMap(env: &JNIEnv<'a>, k_class: Class<'a>, v_class: Class<'a>) -> Result<Self> {
+        let hashmap = env.new_object("java/util/HashMap", "()V", &[])?;
+
+        Ok(Self {
+            inner: Object::new(hashmap, Class::HashMap(env)?),
+            k_class,
+            v_class
+        })
     }
 
     /// Associates the specified value with the specified key in this map (optional operation).

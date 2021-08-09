@@ -3,10 +3,16 @@ use crate::class::Class;
 use jni::JNIEnv;
 use jni::errors::Result;
 use jni::strings::JNIString;
-use jni::objects::JString;
+use jni::objects::{JString, JValue};
 
 /// A wrapper for a java.lang.String
 pub struct JavaString<'a>(pub Object<'a>);
+
+impl<'a> Into<JValue<'a>> for JavaString<'a> {
+    fn into(self) -> JValue<'a> {
+        self.0.into()
+    }
+}
 
 impl<'a> JavaString<'a> {
     /// Create a JavaString wrapper. The caller must guarantee that the passed in Object is a java.lang.String and is not null.
