@@ -17,7 +17,7 @@ impl<'a> Into<JValue<'a>> for JavaString<'a> {
 
 impl<'a> Into<*mut _jobject> for JavaString<'a> {
     fn into(self) -> *mut _jobject {
-        self.inner.obj.into_inner()
+        self.0.obj.into_inner()
     }
 }
 
