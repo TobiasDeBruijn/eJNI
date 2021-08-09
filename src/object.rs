@@ -106,6 +106,12 @@ impl<'a> Object<'a> {
     pub fn instance_of_same_object(&self, env: &JNIEnv<'a>, other: &Self) -> Result<bool> {
         env.is_instance_of(self.obj, other.class.0)
     }
+
+    /// Check if the current Object is equal to another Object.
+    pub fn equals(&self, env: &JNIEnv<'a>, other: &Object<'a>) -> Result<bool> {
+        let equals = env.call_method(self.obj, "equals", "(Ljava/lang/Object;)Z", &[other.into()])?;
+        Ok(equals.z()?)
+    }
 }
 
 #[cfg(test)]
