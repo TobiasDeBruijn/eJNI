@@ -135,6 +135,7 @@ impl<'a> Class<'a> {
         Ok(Self(env.find_class("java/util/Vector")?))
     }
 
+    /// java.util.Map.Entry
     pub fn MapEntry(env: &JNIEnv<'a>) -> Result<Self> {
         Ok(Self(env.find_class("java/util/Map$Entry")?))
     }
@@ -186,7 +187,7 @@ impl<'a> Class<'a> {
 
     /// java.util.List
     pub fn List(env: &JNIEnv<'a>) -> Result<Self> {
-        Ok(Self(env.find_class("java/utl/List")?))
+        Ok(Self(env.find_class("java/util/List")?))
     }
 
     /// java.util.LinkedList
@@ -196,7 +197,7 @@ impl<'a> Class<'a> {
 
     /// java.util.LinkedHashSet
     pub fn LinkedHashSet(env: &JNIEnv<'a>) -> Result<Self> {
-        Ok(Self(env.find_class("java/utl/LinkedHashSet")?))
+        Ok(Self(env.find_class("java/util/LinkedHashSet")?))
     }
 
     /// java.util.LinkedHashMap
@@ -297,6 +298,16 @@ impl<'a> Class<'a> {
     /// java.util.concurrent.atomic.AtomicIntegerFieldUpdater
     pub fn AtomicIntegerFieldUpdater(env: &JNIEnv<'a>) -> Result<Self> {
         Ok(Self(env.find_class("java/util/concurrent/atomic/AtomicIntegerFieldUpdater")?))
+    }
+
+    /// java.util.Data
+    pub fn Date(env: &JNIEnv<'a>) -> Result<Self> {
+        Ok(Self(env.find_class("java/util/Date")?))
+    }
+
+    /// java.net.URI
+    pub fn URI(env: &JNIEnv<'a>) -> Result<Self> {
+        Ok(Self(env.find_class("java/net/URI")?))
     }
 
     /// java.util.concurrent.atomic.AtomicLongArray
@@ -413,6 +424,584 @@ impl<'a> Class<'a> {
         let arr_class = env.get_object_class(arr)?;
         Ok(Self(arr_class))
     }
+}
 
+#[cfg(test)]
+mod test {
+    #![allow(non_snake_case)]
+    use crate::test::*;
+    use super::Class;
 
+    #[test]
+    fn Byte() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Byte(&env).is_ok());
+    }
+
+    #[test]
+    fn Boolean() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Boolean(&env).is_ok());
+    }
+
+    #[test]
+    fn Float() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Float(&env).is_ok());
+    }
+
+    #[test]
+    fn Integer() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Integer(&env).is_ok());
+    }
+
+    #[test]
+    fn Double() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Double(&env).is_ok());
+    }
+
+    #[test]
+    fn Short() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Short(&env).is_ok());
+    }
+
+    #[test]
+    fn Character() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Character(&env).is_ok());
+    }
+
+    #[test]
+    fn Long() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Long(&env).is_ok());
+    }
+
+    #[test]
+    fn Object() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Object(&env).is_ok());
+    }
+
+    #[test]
+    fn Class_() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Class(&env).is_ok());
+    }
+
+    #[test]
+    fn System() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::System(&env).is_ok());
+    }
+
+    #[test]
+    fn CharSequence() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::CharSequence(&env).is_ok());
+    }
+
+    #[test]
+    fn Math() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Math(&env).is_ok());
+    }
+
+    #[test]
+    fn Record() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Record(&env).is_ok());
+    }
+
+    #[test]
+    fn String() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::String(&env).is_ok());
+    }
+
+    #[test]
+    fn StringBuilder() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::StringBuilder(&env).is_ok());
+    }
+
+    #[test]
+    fn BigDecimal() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::BigDecimal(&env).is_ok());
+    }
+
+    #[test]
+    fn BigInteger() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::BigInteger(&env).is_ok());
+    }
+
+    #[test]
+    fn Array() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Array(&env).is_ok());
+    }
+
+    #[test]
+    fn Field() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Field(&env).is_ok());
+    }
+
+    #[test]
+    fn Method() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Method(&env).is_ok());
+    }
+
+    #[test]
+    fn Constructor() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Constructor(&env).is_ok());
+    }
+
+    #[test]
+    fn Uuid() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Uuid(&env).is_ok());
+    }
+
+    #[test]
+    fn Vector() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Vector(&env).is_ok());
+    }
+
+    #[test]
+    fn MapEntry() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::MapEntry(&env).is_ok());
+    }
+
+    #[test]
+    fn Set() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Set(&env).is_ok());
+    }
+
+    #[test]
+    fn Scanner() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Scanner(&env).is_ok());
+    }
+
+    #[test]
+    fn Queue() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Queue(&env).is_ok());
+    }
+    #[test]
+    fn Random() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Random(&env).is_ok());
+    }
+
+    #[test]
+    fn Properties() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Properties(&env).is_ok());
+    }
+
+    #[test]
+    fn Optional() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Optional(&env).is_ok());
+    }
+
+    #[test]
+    fn Objects() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Objects(&env).is_ok());
+    }
+
+    #[test]
+    fn Map() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Map(&env).is_ok());
+    }
+
+    #[test]
+    fn Locale() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Locale(&env).is_ok());
+    }
+
+    #[test]
+    fn List() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::List(&env).is_ok());
+    }
+
+    #[test]
+    fn LinkedList() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::LinkedList(&env).is_ok());
+    }
+
+    #[test]
+    fn LinkedHashSet() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::LinkedHashSet(&env).is_ok());
+    }
+
+    #[test]
+    fn LinkedHashMap() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::LinkedHashMap(&env).is_ok());
+    }
+
+    #[test]
+    fn Iterator() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Iterator(&env).is_ok());
+    }
+
+    #[test]
+    fn IdentityHashMap() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::IdentityHashMap(&env).is_ok());
+    }
+
+    #[test]
+    fn Hashtable() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Hashtable(&env).is_ok());
+    }
+
+    #[test]
+    fn HashSet() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::HashSet(&env).is_ok());
+    }
+
+    #[test]
+    fn HashMap() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::HashMap(&env).is_ok());
+    }
+
+    #[test]
+    fn EnumSet() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::EnumSet(&env).is_ok());
+    }
+
+    #[test]
+    fn EnumMap() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::EnumMap(&env).is_ok());
+    }
+
+    #[test]
+    fn Enumeration() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Enumeration(&env).is_ok());
+    }
+
+    #[test]
+    fn Comparator() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Comparator(&env).is_ok());
+    }
+
+    #[test]
+    fn Comparators() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Comparators(&env).is_ok());
+    }
+
+    #[test]
+    fn Collection() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Collection(&env).is_ok());
+    }
+
+    #[test]
+    fn Base64() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Base64(&env).is_ok());
+    }
+
+    #[test]
+    fn Arrays() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Arrays(&env).is_ok());
+    }
+
+    #[test]
+    fn ArrayList() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::ArrayList(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicInteger() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicInteger(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicLong() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicLong(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicReference() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicReference(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicIntegerArray() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicIntegerArray(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicIntegerFieldUpdater() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicIntegerFieldUpdater(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicLongArray() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicLongArray(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicLongFieldUpdater() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicLongFieldUpdater(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicMarkableReference() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicMarkableReference(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicReferenceArray() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicReferenceArray(&env).is_ok());
+    }
+
+    #[test]
+    fn AtomicReferenceFieldUpdater() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::AtomicReferenceFieldUpdater(&env).is_ok());
+    }
+
+    #[test]
+    fn DoubleAccumulator() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::DoubleAccumulator(&env).is_ok());
+    }
+
+    #[test]
+    fn DoubleAdder() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::DoubleAdder(&env).is_ok());
+    }
+
+    #[test]
+    fn LongAccumulator() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::LongAccumulator(&env).is_ok());
+    }
+
+    #[test]
+    fn LongAdder() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::LongAdder(&env).is_ok());
+    }
+
+    #[test]
+    fn Striped64() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Striped64(&env).is_ok());
+    }
+
+    #[test]
+    fn Future() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Future(&env).is_ok());
+    }
+
+    #[test]
+    fn TimeUnit() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::TimeUnit(&env).is_ok());
+    }
+
+    #[test]
+    fn Pattern() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Pattern(&env).is_ok());
+    }
+
+    #[test]
+    fn Matcher() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Matcher(&env).is_ok());
+    }
+
+    #[test]
+    fn Duration() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Duration(&env).is_ok());
+    }
+
+    #[test]
+    fn Instant() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Instant(&env).is_ok());
+    }
+
+    #[test]
+    fn File() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::File(&env).is_ok());
+    }
+
+    #[test]
+    fn InputStream() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::InputStream(&env).is_ok());
+    }
+
+    #[test]
+    fn OutputStream() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::OutputStream(&env).is_ok());
+    }
+
+    #[test]
+    fn Unsafe() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Unsafe(&env).is_ok());
+    }
+
+    #[test]
+    fn Date() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::Date(&env).is_ok());
+    }
+
+    #[test]
+    fn URI() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::URI(&env).is_ok());
+    }
+
+    #[test]
+    fn for_name_slash() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::for_name(&env, "java/lang/String").is_ok())
+    }
+
+    #[test]
+    fn for_name_dot() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::for_name(&env,"java.lang.String").is_ok());
+    }
+
+    #[test]
+    fn array_type() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        assert!(Class::BigInteger(&env).unwrap().array_type(&env).is_ok());
+    }
 }
