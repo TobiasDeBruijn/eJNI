@@ -29,7 +29,7 @@ impl<'a> Map<'a> {
     }
 
     /// Create a Map wrapper for a new HashMap
-    pub fn new_HashMap(env: &JNIEnv<'a>, k_class: Class<'a>, v_class: Class<'a>) -> Result<Self> {
+    pub fn hashmap(env: &JNIEnv<'a>, k_class: Class<'a>, v_class: Class<'a>) -> Result<Self> {
         let hashmap = env.new_object("java/util/HashMap", "()V", &[])?;
 
         Ok(Self {

@@ -1082,7 +1082,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
-        let hashmap = crate::abstractions::map::Map::new_HashMap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
+        let hashmap = crate::abstractions::map::Map::hashmap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
 
         let is_compat = hashmap.inner.class.is_compatible(&env, &Class::Map(&env)?)?;
         assert!(is_compat);
