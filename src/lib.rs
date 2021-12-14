@@ -10,6 +10,8 @@ pub use primitives::*;
 pub mod abstractions;
 pub use abstractions::*;
 
+pub use jni::*;
+
 #[cfg(test)]
 mod test {
     use jni::{JavaVM, JNIVersion, InitArgsBuilder};

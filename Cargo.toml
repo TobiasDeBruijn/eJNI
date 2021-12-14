@@ -11,7 +11,8 @@ repository = "https://github.com/TheDutchMC/eJNI"
 homepage = "https://github.com/TheDutchMC/eJNI"
 
 [dependencies]
-jni = "0.19.0"
+jni = "^0.19"
+thiserror = "^1.0"
 
 [dev-dependencies]
 lazy_static = "1.4.0"

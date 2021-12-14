@@ -15,6 +15,7 @@ pub struct Iterator<'a> {
     env:        &'a JNIEnv<'a>
 }
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<*mut _jobject> for Iterator<'a> {
     fn into(self) -> *mut _jobject {
         self.inner.inner.into_inner()
@@ -40,7 +41,7 @@ impl<'a> Iterator<'a> {
     /// Returns true if the iteration has more elements.
     pub fn has_next(&self) -> Result<bool> {
         let has_next = self.env.call_method(self.inner.inner, "hasNext", "()Z", &[])?;
-        Ok(has_next.z()?)
+        has_next.z()
     }
 
     /// Returns the next element in the iteration.

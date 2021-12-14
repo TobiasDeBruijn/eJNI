@@ -15,6 +15,7 @@ pub struct List<'a> {
     env:        &'a JNIEnv<'a>
 }
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<*mut _jobject> for List<'a> {
     fn into(self) -> *mut _jobject {
         self.inner.inner.into_inner()
@@ -49,7 +50,7 @@ impl<'a> List<'a> {
     /// Appends the specified element to the end of this list (optional operation).
     pub fn add(&self, object: &Object<'a>) -> Result<bool> {
         let object = self.env.call_method(self.inner.inner, "add", "(Ljava/lang/Object;)Z", &[object.into()])?;
-        Ok(object.z()?)
+        object.z()
     }
 
     /// Inserts the specified element at the specified position in this list (optional operation).
@@ -67,7 +68,7 @@ impl<'a> List<'a> {
     /// Returns true if this list contains the specified element.
     pub fn contains(&self, object: &Object<'a>) -> Result<bool> {
         let contains = self.env.call_method(self.inner.inner, "contains", "(Ljava/lang/Object;)Z", &[object.into()])?;
-        Ok(contains.z()?)
+        contains.z()
     }
 
     /// Returns the element at the specified position in this list.
@@ -83,19 +84,19 @@ impl<'a> List<'a> {
     /// Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
     pub fn index_of(&self, object: &Object<'a>) -> Result<i32> {
         let index = self.env.call_method(self.inner.inner, "indexOf", "(Ljava/lang/Object;)I", &[object.into()])?;
-        Ok(index.i()?)
+        index.i()
     }
 
     /// Returns true if this list contains no elements.
     pub fn is_empty(&self) -> Result<bool> {
         let is_empty = self.env.call_method(self.inner.inner, "isEmpty", "()Z", &[])?;
-        Ok(is_empty.z()?)
+        is_empty.z()
     }
 
     /// Removes the first occurrence of the specified element from this list, if it is present (optional operation).
     pub fn remove(&self, object: &Object<'a>) -> Result<bool> {
         let remove = self.env.call_method(self.inner.inner, "remove", "(Ljava/lang/Object;)Z", &[object.into()])?;
-        Ok(remove.z()?)
+        remove.z()
     }
 
     /// Removes the element at the specified position in this list (optional operation).
@@ -121,7 +122,7 @@ impl<'a> List<'a> {
     /// Returns the number of elements in this list.
     pub fn size(&self) -> Result<i32> {
         let size = self.env.call_method(self.inner.inner, "size", "()I", &[])?;
-        Ok(size.i()?)
+        size.i()
     }
 
     /// Returns a view of the portion of this list between the specified from index, inclusive, and to index, exclusive.
@@ -151,7 +152,7 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
 
-        let has_changed = list.add(&Object::new_Integer(&env, 10).unwrap()).unwrap();
+        let has_changed = list.add(&Object::new_integer_object(&env, 10).unwrap()).unwrap();
         assert!(has_changed);
 
         let size = list.size().unwrap();
@@ -163,9 +164,9 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        list.add(&Object::new_Integer(&env, 20).unwrap()).unwrap();
+        list.add(&Object::new_integer_object(&env, 20).unwrap()).unwrap();
 
-        list.add_at(&Object::new_Integer(&env, 10).unwrap(), 0).unwrap();
+        list.add_at(&Object::new_integer_object(&env, 10).unwrap(), 0).unwrap();
 
         let zeroth = list.get(0).unwrap().unwrap();
         let zeroth_int = env.call_method(zeroth.inner, "intValue", "()I", &[]).unwrap().i().unwrap();
@@ -181,7 +182,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        list.add(&Object::new_Integer(&env, 20).unwrap()).unwrap();
+        list.add(&Object::new_integer_object(&env, 20).unwrap()).unwrap();
 
         list.clear().unwrap();
 
@@ -194,7 +195,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
         let contains = list.contains(&integer).unwrap();
@@ -206,7 +207,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
         let zeroth = list.get(0).unwrap().unwrap();
@@ -218,7 +219,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
         let index_of = list.index_of(&integer).unwrap();
@@ -240,7 +241,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
         let list_changed = list.remove(&integer).unwrap();
@@ -252,7 +253,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
         let removed = list.remove_at(0).unwrap().unwrap();
@@ -266,10 +267,10 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
-        let new_integer = Object::new_Integer(&env, 10).unwrap();
+        let new_integer = Object::new_integer_object(&env, 10).unwrap();
 
         let old_integer = list.set(&new_integer, 0).unwrap().unwrap();
         let equal = integer.equals(&old_integer).unwrap();
@@ -281,7 +282,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        let integer = Object::new_Integer(&env, 20).unwrap();
+        let integer = Object::new_integer_object(&env, 20).unwrap();
         list.add(&integer).unwrap();
 
         let size = list.size().unwrap();
@@ -293,9 +294,9 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
         let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
-        list.add(&Object::new_Integer(&env, 10).unwrap()).unwrap();
-        list.add(&Object::new_Integer(&env, 20).unwrap()).unwrap();
-        list.add(&Object::new_Integer(&env, 30).unwrap()).unwrap();
+        list.add(&Object::new_integer_object(&env, 10).unwrap()).unwrap();
+        list.add(&Object::new_integer_object(&env, 20).unwrap()).unwrap();
+        list.add(&Object::new_integer_object(&env, 30).unwrap()).unwrap();
 
         let sublist = list.sublist(1, 3).unwrap();
         let size = sublist.size().unwrap();

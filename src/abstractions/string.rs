@@ -13,27 +13,19 @@ pub struct JavaString<'a> {
     env:        &'a JNIEnv<'a>
 }
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<JValue<'a>> for JavaString<'a> {
     fn into(self) -> JValue<'a> {
         self.inner.clone().into()
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<*mut _jobject> for JavaString<'a> {
     fn into(self) -> *mut _jobject {
         self.inner.inner.into_inner()
     }
 }
-
-// TODO Uncommenting this causes the JVM to be unhappy
-// i.e NullPointerException
-/*
-impl<'a> Drop for JavaString<'a> {
-    fn drop(&mut self) {
-        let _ = self.env.delete_local_ref(self.inner.inner);
-    }
-}
-*/
 
 impl<'a> JavaString<'a> {
     /// Create a JavaString wrapper. The caller must guarantee that the passed in Object is a java.lang.String and is not null.

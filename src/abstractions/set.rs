@@ -2,6 +2,7 @@ use crate::object::Object;
 use crate::class::Class;
 use jni::JNIEnv;
 use jni::errors::Result;
+use jni::objects::JValue;
 use crate::abstractions::iterator::Iterator;
 use jni::sys::_jobject;
 
@@ -16,6 +17,7 @@ pub struct Set<'a> {
     env:        &'a JNIEnv<'a>
 }
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<*mut _jobject> for Set<'a> {
     fn into(self) -> *mut _jobject {
         self.inner.inner.into_inner()
@@ -38,10 +40,40 @@ impl<'a> Set<'a> {
         }
     }
 
+    /// Constructs a new, empty set; the backing HashMap instance has default initial capacity (16) and load factor (0.75).
+    pub fn hashset(env: &'a JNIEnv<'a>, v_class: Class<'a>) -> Result<Self> {
+        let hashset = env.new_object("java/util/HashSet", "()V", &[])?;
+        Ok(Self {
+            inner: Object::new(env, hashset, Class::HashSet(env)?),
+            class: v_class,
+            env
+        })
+    }
+
+    /// Constructs a new, empty set; the backing HashMap instance has the specified initial capacity and default load factor (0.75).
+    pub fn hashset_with_capacity(env: &'a JNIEnv<'a>, v_class: Class<'a>, initial_capacity: i32) -> Result<Self> {
+        let hashset = env.new_object("java/util/HashSet", "(I)V", &[JValue::Int(initial_capacity)])?;
+        Ok(Self {
+            inner: Object::new(env, hashset, Class::HashSet(env)?),
+            class: v_class,
+            env
+        })
+    }
+
+    /// Constructs a new, empty set; the backing HashMap instance has the specified initial capacity and the specified load factor.
+    pub fn hashset_with_capacity_and_load_factor(env: &'a JNIEnv<'a>, v_class: Class<'a>, initial_capacity: i32, load_factor: f32) -> Result<Self> {
+        let hashset = env.new_object("java/util/HashSet", "(IF)V", &[JValue::Int(initial_capacity), JValue::Float(load_factor)])?;
+        Ok(Self {
+            inner: Object::new(env, hashset, Class::HashSet(env)?),
+            class: v_class,
+            env
+        })
+    }
+
     /// Returns the number of elements in this set (its cardinality).
     pub fn size(&self) -> Result<i32> {
         let size = self.env.call_method(self.inner.inner, "size", "()I", &[])?;
-        Ok(size.i()?)
+        size.i()
     }
 
     /// Returns an iterator over the elements in this set.

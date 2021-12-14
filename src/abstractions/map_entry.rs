@@ -18,6 +18,7 @@ pub struct MapEntry<'a> {
     env:            &'a JNIEnv<'a>
 }
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<*mut _jobject> for MapEntry<'a> {
     fn into(self) -> *mut _jobject {
         self.inner.inner.into_inner()

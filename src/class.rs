@@ -1,3 +1,4 @@
+use std::fmt::{Debug, Formatter};
 use jni::objects::{JClass, JObject};
 use jni::errors::Result;
 use jni::JNIEnv;
@@ -12,15 +13,13 @@ pub struct Class<'a> {
     env:        &'a JNIEnv<'a>
 }
 
-// TODO Uncommenting this causes the JVM to be unhappy
-/*
-impl<'a> Drop for Class<'a> {
-    fn drop(&mut self) {
-        let _ = self.env.delete_local_ref(self.class.into());
+impl<'a> Debug for Class<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.get_name())
     }
 }
-*/
 
+#[allow(clippy::from_over_into)]
 impl<'a> Into<*mut _jobject> for Class<'a> {
     fn into(self) -> *mut _jobject {
         self.class.into_inner()
