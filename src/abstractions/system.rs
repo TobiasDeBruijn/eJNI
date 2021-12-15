@@ -147,3 +147,128 @@ impl<'a> System<'a> {
         Ok(Some(string.into_rust()?))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::test::JVM;
+    use super::*;
+
+    #[test]
+    fn clear_property() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.clear_property("Foo").is_ok());
+    }
+
+    #[test]
+    fn current_time_millis() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.current_time_millis().is_ok());
+    }
+
+    #[test]
+    fn gc() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.gc().is_ok());
+    }
+
+    #[test]
+    fn get_env() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.get_env().is_ok());
+    }
+
+    #[test]
+    fn get_env_with_name() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.get_env_with_name("Foo").is_ok());
+    }
+
+    #[test]
+    fn get_property() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.get_property("Foo").is_ok());
+    }
+
+    #[test]
+    fn line_separator() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.line_separator().is_ok());
+    }
+
+    #[test]
+    fn load() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        #[cfg(unix)]
+        {
+            // Example of loading libc
+            assert!(system.load("/lib/x86_64-linux-gnu/libc.so.6").is_ok());
+
+            if env.exception_check().unwrap() {
+                env.exception_clear().unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn load_library() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        #[cfg(unix)]
+        {
+            // Example of trying to load libjava
+            assert!(system.load_library("java").is_ok());
+
+            if env.exception_check().unwrap() {
+                env.exception_clear().unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn nano_time() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.nano_time().is_ok());
+    }
+
+    #[test]
+    fn set_property() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let system = System::new(&env);
+
+        assert!(system.set_property("Foo", "Bar").is_ok());
+
+        let property_foo = system.get_property("Foo").unwrap();
+        assert!(property_foo.is_some());
+        assert_eq!(property_foo.unwrap(), "Bar");
+    }
+}
