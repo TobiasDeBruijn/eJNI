@@ -1,16 +1,17 @@
-pub mod class;
+#![deny(clippy::missing_safety_doc)]
+#![warn(missing_docs)]
+
+mod class;
 pub use class::*;
 
-pub mod object;
+mod object;
 pub use object::*;
 
-pub mod primitives;
+mod primitives;
 pub use primitives::*;
 
-pub mod abstractions;
+mod abstractions;
 pub use abstractions::*;
-
-pub use jni::*;
 
 #[cfg(test)]
 mod test {

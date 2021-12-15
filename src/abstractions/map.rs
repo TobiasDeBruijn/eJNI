@@ -6,7 +6,7 @@ use crate::class::Class;
 use crate::abstractions::set::Set;
 use jni::sys::_jobject;
 
-/// Wrapper around java.util.Map
+/// Wrapper around `java.util.Map`
 pub struct Map<'a> {
     /// The Map itself
     pub inner:      Object<'a>,
@@ -139,7 +139,7 @@ impl<'a> Map<'a> {
 
     /// Returns a Set<Map.Entry<K, V>> view of the mappings contained in this map.
     pub fn entry_set(&self) -> Result<Set<'a>> {
-        let entry_set = self.env.call_method(self.inner.inner, "entrySet()", "()Ljava/util/Set;", &[])?;
+        let entry_set = self.env.call_method(self.inner.inner, "entrySet", "()Ljava/util/Set;", &[])?;
         let object = Object::new(self.env, entry_set.l()?, Class::Set(self.env)?);
         let set = Set::new(self.env, object, Class::MapEntry(self.env)?);
         Ok(set)
@@ -293,6 +293,38 @@ mod test {
 
         let removed = removed.unwrap();
         assert!(value.equals(&removed).unwrap())
+    }
+
+    #[test]
+    fn entry_set() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let int_class = Class::Integer(&env).unwrap();
+        let map = Map::hashmap(&env, int_class.clone(), int_class).unwrap();
+
+        let entry_set = map.entry_set();
+        assert!(entry_set.is_ok());
+    }
+
+    #[test]
+    fn remove_if_mapped() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let int_class = Class::Integer(&env).unwrap();
+        let map = Map::hashmap(&env, int_class.clone(), int_class).unwrap();
+
+        let key = Object::new_integer_object(&env, 1).unwrap();
+        let value = Object::new_integer_object(&env, 10).unwrap();
+
+        map.put(key.clone(), value.clone()).unwrap();
+        assert_eq!(1, map.size().unwrap());
+
+        let other_value = Object::new_integer_object(&env, 25).unwrap();
+        assert!(map.remove_if_mapped(&key, &other_value).is_ok());
+        assert_eq!(1, map.size().unwrap());
+
+        assert!(map.remove_if_mapped(&key, &value).unwrap());
+        assert_eq!(0, map.size().unwrap());
     }
 
     #[test]

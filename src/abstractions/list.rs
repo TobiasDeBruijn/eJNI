@@ -4,7 +4,7 @@ use jni::{JNIEnv, errors::Result};
 use jni::objects::JValue;
 use jni::sys::_jobject;
 
-/// A wrapper around `java.util.List`
+/// Wrapper around `java.util.List`
 pub struct List<'a> {
     /// The list itself
     pub inner:  Object<'a>,
@@ -29,6 +29,7 @@ impl<'a> Drop for List<'a> {
 }
 
 impl<'a> List<'a> {
+    /// Create a List abstraction from it's raw components. The caller must guarantee that `object` implements `java.util.List` and that `class` is the correct Class
     pub fn new(env: &'a JNIEnv<'a>, object: Object<'a>, class: Class<'a>) -> Self {
         Self {
             inner: object,
@@ -129,6 +130,16 @@ impl<'a> List<'a> {
     pub fn sublist(&self, from: i32, to: i32) -> Result<List<'a>> {
         let sublist = self.env.call_method(self.inner.inner, "subList", "(II)Ljava/util/List;", &[JValue::Int(from), JValue::Int(to)])?;
         Ok(Self::new(self.env, Object::new(self.env, sublist.l()?, self.inner.class.clone()), self.class.clone()))
+    }
+
+    /// Returns an iterator over the elements in this list in proper sequence.
+    pub fn iterator(&self) -> Result<crate::Iterator<'a>> {
+        let iterator = self.env.call_method(self.inner.inner, "iterator", "()Ljava/util/Iterator;", &[])?;
+        Ok(crate::Iterator::new(
+            self.env,
+            Object::new(self.env, iterator.l()?, Class::Iterator(self.env)?),
+            self.class.clone()
+        ))
     }
 }
 
@@ -301,5 +312,15 @@ mod test {
         let sublist = list.sublist(1, 3).unwrap();
         let size = sublist.size().unwrap();
         assert_eq!(2, size);
+    }
+
+    #[test]
+    fn iterator() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let list = List::arraylist(&env, Class::Integer(&env).unwrap()).unwrap();
+
+        let iterator = list.iterator();
+        assert!(iterator.is_ok());
     }
 }

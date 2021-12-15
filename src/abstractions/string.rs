@@ -6,9 +6,10 @@ use jni::strings::JNIString;
 use jni::objects::{JString, JValue};
 use jni::sys::_jobject;
 
-/// A wrapper for a java.lang.String
+/// Wrapper around `java.lang.String`
 #[derive(Clone)]
 pub struct JavaString<'a> {
+    /// The underlying Object
     pub inner:  Object<'a>,
     env:        &'a JNIEnv<'a>
 }

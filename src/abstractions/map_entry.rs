@@ -4,7 +4,7 @@ use jni::JNIEnv;
 use jni::errors::Result;
 use jni::sys::_jobject;
 
-/// Wrapper around Map.Entry
+/// Wrapper around `java.util.Map.Entry`
 pub struct MapEntry<'a> {
     /// The Map.Entry itself
     pub inner:      Object<'a>,

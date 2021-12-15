@@ -6,7 +6,7 @@ use jni::objects::JValue;
 use crate::abstractions::iterator::Iterator;
 use jni::sys::_jobject;
 
-/// Wrapper around java.util.Set
+/// Wrapper around `java.util.Set`
 pub struct Set<'a> {
     /// The Set itself
     pub inner:  Object<'a>,
@@ -84,15 +84,12 @@ impl<'a> Set<'a> {
         Ok(iterator)
     }
 
+    /// Convert the java.util.Set to a Vec
     pub fn to_vec(&self) -> Result<Vec<Object<'a>>> {
         let mut vec = Vec::new();
-
         let iter = self.iterator()?;
-        while iter.has_next()? {
-            match iter.next()? {
-                Some(next) => vec.push(next),
-                None => continue
-            }
+        while let Some(i) = iter.next()? {
+            vec.push(i);
         }
 
         Ok(vec)

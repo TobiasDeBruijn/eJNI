@@ -1,14 +1,16 @@
 use std::fmt::{Debug, Formatter};
+use jni::descriptors::Desc;
 use jni::objects::{JClass, JObject};
 use jni::errors::Result;
 use jni::JNIEnv;
-use crate::abstractions::string::JavaString;
+use crate::abstractions::JavaString;
 use crate::object::Object;
 use jni::sys::_jobject;
 
 /// Class describes java.lang.Class, with getters for often used classes from the Java standard library.
 #[derive(Clone)]
 pub struct Class<'a> {
+    /// The underlying JClass
     pub class:  JClass<'a>,
     env:        &'a JNIEnv<'a>
 }
@@ -32,9 +34,16 @@ impl<'a> From<Class<'a>> for JClass<'a> {
     }
 }
 
+impl<'a> Desc<'a, JClass<'a>> for Class<'a> {
+    fn lookup(self, _: &JNIEnv<'a>) -> Result<JClass<'a>> {
+        Ok(self.class)
+    }
+}
+
 impl<'a> Class<'a> {
     #![allow(non_snake_case)]
 
+    /// Create a new Class from it's raw compontents
     pub fn new(env: &'a JNIEnv<'a>, class: JClass<'a>) -> Self {
         Self {
             env,
@@ -440,7 +449,8 @@ impl<'a> Class<'a> {
     /// Find a class by it's Java name. Can be in the format:
     /// - `java/lang/String`
     /// - `java.lang.String`
-    pub fn for_name(env: &'a JNIEnv<'a>, name: &str) -> Result<Self> {
+    pub fn for_name<S: AsRef<str>>(env: &'a JNIEnv<'a>, name: S) -> Result<Self> {
+        let name = name.as_ref();
         let name_patched = name.replace('.', "/");
         Ok(Self::new(env, env.find_class(&name_patched)?))
     }
@@ -1107,7 +1117,7 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
-        let hashmap = crate::abstractions::map::Map::hashmap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
+        let hashmap = crate::abstractions::Map::hashmap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
 
         let is_compat = hashmap.inner.class.is_compatible(&Class::Map(&env)?)?;
         assert!(is_compat);

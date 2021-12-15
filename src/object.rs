@@ -9,7 +9,9 @@ use thiserror::Error;
 /// Describes a Java Object
 #[derive(Clone)]
 pub struct Object<'a> {
+    /// The underlying JNI object
     pub inner:  JObject<'a>,
+    /// The Class of the object
     pub class:  Class<'a>,
     env:        &'a JNIEnv<'a>
 }
@@ -34,14 +36,18 @@ impl<'a> Into<*mut _jobject> for Object<'a> {
     }
 }
 
+/// Describes the possible errors that can occur when retrieving primitives from the primitive's Object equivalent
 #[derive(Debug, Error)]
 pub enum PrimitiveError<'a> {
+    /// JNI Error
     #[error("JNI Error: {0}")]
     Jni(#[from] jni::errors::Error),
+    /// Classes are not the same
     #[error("Expected {0:?}, but found {0:?}")]
     ClassMismatch(Class<'a>, Class<'a>)
 }
 
+/// Result returned from functions that retrieve a primitive from the respective primitive's Object equivalent
 pub type PrimitiveResult<'a, T> = std::result::Result<T, PrimitiveError<'a>>;
 
 macro_rules! assert_same_class {
@@ -68,7 +74,7 @@ impl<'a> Object<'a> {
     }
 
     /// Create a new java.lang.String
-    pub fn new_string(env: &'a JNIEnv<'a>, str: impl AsRef<str>) -> Result<Self> {
+    pub fn new_string<S: AsRef<str>>(env: &'a JNIEnv<'a>, str: S) -> Result<Self> {
         Ok(Self::new(env, env.new_string(str.as_ref())?.into(), Class::String(env)?))
     }
 
@@ -239,7 +245,7 @@ mod test {
     use crate::class::Class;
 
     #[test]
-    fn new_String() {
+    fn new_string() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -249,7 +255,7 @@ mod test {
     }
 
     #[test]
-    fn new_Byte() {
+    fn new_byte() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -259,7 +265,7 @@ mod test {
     }
 
     #[test]
-    fn new_Long() {
+    fn new_long() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -269,7 +275,7 @@ mod test {
     }
 
     #[test]
-    fn new_Integer() {
+    fn new_integer() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -279,7 +285,7 @@ mod test {
     }
 
     #[test]
-    fn new_Float() {
+    fn new_float() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -289,7 +295,7 @@ mod test {
     }
 
     #[test]
-    fn new_Double() {
+    fn new_double() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -299,7 +305,7 @@ mod test {
     }
 
     #[test]
-    fn new_Boolean() {
+    fn new_boolean() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -313,7 +319,7 @@ mod test {
     }
 
     #[test]
-    fn new_Character() {
+    fn new_character() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -323,7 +329,7 @@ mod test {
     }
 
     #[test]
-    fn new_Short() {
+    fn new_short() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
@@ -333,7 +339,7 @@ mod test {
     }
 
     #[test]
-    fn new_Array() {
+    fn new_array() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
