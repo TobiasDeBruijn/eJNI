@@ -3,7 +3,7 @@ use jni::JNIEnv;
 use jni::errors::Result;
 use jni::signature::{JavaType, Primitive};
 use crate::class::Class;
-use jni::sys::_jobject;
+use jni::sys::{_jobject, jsize};
 use thiserror::Error;
 
 /// Describes a Java Object
@@ -43,12 +43,23 @@ pub enum PrimitiveError<'a> {
     #[error("JNI Error: {0}")]
     Jni(#[from] jni::errors::Error),
     /// Classes are not the same
-    #[error("Expected {0:?}, but found {0:?}")]
+    #[error("Expected {0:?}, but found {1:?}")]
     ClassMismatch(Class<'a>, Class<'a>)
 }
 
 /// Result returned from functions that retrieve a primitive from the respective primitive's Object equivalent
 pub type PrimitiveResult<'a, T> = std::result::Result<T, PrimitiveError<'a>>;
+
+/// Describes the possible errors that can occur when getting the items from an array
+#[derive(Debug, Error)]
+pub enum GetArrayError<'a> {
+    /// JNI Error
+    #[error("JNI Error: {0}")]
+    Jni(#[from] jni::errors::Error),
+    /// Class is not an array type
+    #[error("Expected {0:?} to be an array, it is not")]
+    NotArray(Class<'a>)
+}
 
 macro_rules! assert_same_class {
     ($a:expr, $b:expr) => {
@@ -129,6 +140,33 @@ impl<'a> Object<'a> {
         }
 
         Ok(Self::new(env, JObject::from(arr), class.array_type(env)?))
+    }
+
+    /// Get the elements of the array. The caller must guarantee that the current Object is an array
+    pub fn get_array(&self) -> std::result::Result<Vec<Self>, GetArrayError<'a>> {
+        if !self.is_array()? {
+            return Err(GetArrayError::NotArray(self.class.clone()));
+        }
+
+        let class_name = self.class.get_name()?;
+        let regular_name = &class_name[2..class_name.len() - 1];
+        let object_class = Class::for_name(self.env, regular_name)?;
+
+        let len = self.env.get_array_length(self.inner.into_inner())?;
+        let mut buf = Vec::with_capacity(len as usize);
+        for i in 0..len {
+            let obj = self.env.get_object_array_element(self.inner.into_inner(), i as jsize)?;
+            let object = Self::new(self.env, obj, object_class.clone());
+            buf.push(object);
+        }
+
+        Ok(buf)
+    }
+
+    /// Check if the current object is an array
+    fn is_array(&self) -> Result<bool> {
+        let class_name = self.class.get_name()?;
+        Ok(class_name.starts_with("["))
     }
 
     /// Call java.object.Object#getClass() on the current Object
@@ -240,7 +278,7 @@ mod test {
     #![allow(non_snake_case)]
 
     use crate::test::JVM;
-    use super::Object;
+    use super::*;
     use jni::objects::JString;
     use crate::class::Class;
 
@@ -353,6 +391,64 @@ mod test {
         let bool_value = env.call_method(zeroth_element, "booleanValue", "()Z", &[]).unwrap().z().unwrap();
 
         assert_eq!(true, bool_value);
+    }
+
+    #[test]
+    fn get_array() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+
+        let boolean = &[Object::new_boolean_object(&env, true).unwrap(), Object::new_boolean_object(&env, false).unwrap()];
+        let boolean_array = Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
+
+        let array = boolean_array.get_array().unwrap();
+        let booleans: Vec<_> = array.into_iter()
+            .map(|f| f.get_boolean().unwrap())
+            .collect();
+
+        assert_eq!(&[true, false], booleans.as_slice());
+    }
+
+    #[test]
+    fn get_array_not_array() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let object = Object::new_boolean_object(&env, false).unwrap();
+
+        let array = object.get_array();
+        assert!(array.is_err());
+
+        let err = array.err().unwrap();
+        let is_correct_err = match err {
+            GetArrayError::Jni(_) => false,
+            GetArrayError::NotArray(_) => true
+        };
+
+        assert!(is_correct_err);
+    }
+
+    #[test]
+    fn is_array_true() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+
+        let boolean = &[Object::new_boolean_object(&env, true).unwrap(), Object::new_boolean_object(&env, false).unwrap()];
+        let boolean_array = Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
+
+        let is_array = boolean_array.is_array();
+        assert!(is_array.is_ok());
+        assert!(is_array.unwrap());
+    }
+
+    #[test]
+    fn is_array_false() {
+        let jvm = JVM.lock().unwrap();
+        let env = jvm.attach_current_thread().unwrap();
+        let object = Object::new_boolean_object(&env, false).unwrap();
+
+        let is_array = object.is_array();
+        assert!(is_array.is_ok());
+        assert!(!is_array.unwrap());
     }
 
     #[test]
