@@ -13,7 +13,7 @@ pub struct Object<'a> {
     pub inner:  JObject<'a>,
     /// The Class of the object
     pub class:  Class<'a>,
-    env:        &'a JNIEnv<'a>
+    pub env:        &'a JNIEnv<'a>
 }
 
 #[allow(clippy::from_over_into)]

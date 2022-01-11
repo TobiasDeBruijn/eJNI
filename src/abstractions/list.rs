@@ -1,7 +1,7 @@
 use crate::object::Object;
 use crate::class::Class;
 use jni::{JNIEnv, errors::Result};
-use jni::objects::JValue;
+use jni::objects::{JObject, JValue};
 use jni::sys::_jobject;
 
 /// Wrapper around `java.util.List`
@@ -13,6 +13,16 @@ pub struct List<'a> {
     pub class:  Class<'a>,
 
     env:        &'a JNIEnv<'a>
+}
+
+impl<'a> From<Object<'a>> for List<'a> {
+    fn from(obj: Object<'a>) -> Self {
+        Self {
+            inner: obj.clone(),
+            class: obj.class,
+            env: obj.env
+        }
+    }
 }
 
 #[allow(clippy::from_over_into)]
