@@ -1,18 +1,18 @@
-use jni::errors::Result;
-use jni::JNIEnv;
-use crate::object::Object;
 use crate::class::Class;
+use crate::object::Object;
+use jni::errors::Result;
 use jni::sys::_jobject;
+use jni::JNIEnv;
 
 /// Wrapper around `java.util.Iterator`
 pub struct Iterator<'a> {
     /// The iterator itself
-    pub inner:  Object<'a>,
+    pub inner: Object<'a>,
 
     /// The Class the iterator iterates over
-    pub class:  Class<'a>,
+    pub class: Class<'a>,
 
-    env:        &'a JNIEnv<'a>
+    env: &'a JNIEnv<'a>,
 }
 
 #[allow(clippy::from_over_into)]
@@ -42,27 +42,31 @@ impl<'a> Iterator<'a> {
         Self {
             inner: object,
             class,
-            env
+            env,
         }
     }
 
     /// Returns true if the iteration has more elements.
     pub fn has_next(&self) -> Result<bool> {
-        let has_next = self.env.call_method(self.inner.inner, "hasNext", "()Z", &[])?;
+        let has_next = self
+            .env
+            .call_method(self.inner.inner, "hasNext", "()Z", &[])?;
         has_next.z()
     }
 
     /// Returns the next element in the iteration.
     pub fn next(&self) -> Result<Option<Object<'a>>> {
         if !self.has_next()? {
-            return Ok(None)
+            return Ok(None);
         }
 
-        let next = self.env.call_method(self.inner.inner, "next", "()Ljava/lang/Object;", &[])?;
-        let object = Object::new(self.env,next.l()?, self.class.clone());
+        let next = self
+            .env
+            .call_method(self.inner.inner, "next", "()Ljava/lang/Object;", &[])?;
+        let object = Object::new(self.env, next.l()?, self.class.clone());
         match object.inner.is_null() {
             true => Ok(None),
-            false => Ok(Some(object))
+            false => Ok(Some(object)),
         }
     }
 
@@ -79,9 +83,9 @@ impl<'a> Iterator<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::List;
-    use crate::test::JVM;
     use super::*;
+    use crate::test::JVM;
+    use crate::List;
 
     #[test]
     fn has_next() {
@@ -95,7 +99,8 @@ mod test {
         assert!(has_next.is_ok());
         assert!(!has_next.unwrap());
 
-        list.add(&Object::new_integer_object(&env, 10).unwrap()).unwrap();
+        list.add(&Object::new_integer_object(&env, 10).unwrap())
+            .unwrap();
         let iterator = list.iterator().unwrap();
         let has_next = iterator.has_next();
         assert!(has_next.is_ok());

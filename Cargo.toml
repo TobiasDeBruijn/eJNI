@@ -1,6 +1,6 @@
 [package]
 name = "ejni"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Tobias de Bruijn <t.debruijn@array21.dev>"]
 edition = "2018"
 description = "Library to make working with JNI more pleasant"

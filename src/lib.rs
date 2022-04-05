@@ -1,3 +1,5 @@
+//! eJNI
+
 #![deny(clippy::missing_safety_doc)]
 #![warn(missing_docs)]
 
@@ -15,7 +17,7 @@ pub use abstractions::*;
 
 #[cfg(test)]
 mod test {
-    use jni::{JavaVM, JNIVersion, InitArgsBuilder};
+    use jni::{InitArgsBuilder, JNIVersion, JavaVM};
     use lazy_static::lazy_static;
     use std::sync::Mutex;
     lazy_static! {

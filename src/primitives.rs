@@ -1,6 +1,9 @@
-use jni::sys::{jintArray, jbyteArray, jlongArray, jfloatArray, jdoubleArray, jcharArray, jshortArray, jbooleanArray};
-use jni::JNIEnv;
 use jni::errors::Result;
+use jni::sys::{
+    jbooleanArray, jbyteArray, jcharArray, jdoubleArray, jfloatArray, jintArray, jlongArray,
+    jshortArray,
+};
+use jni::JNIEnv;
 
 /// Helper struct for Java's Primitives
 pub struct Primitive();
@@ -80,9 +83,7 @@ impl Primitive {
         let mut buf = vec![0; len as usize];
         env.get_byte_array_region(bytes, 0, &mut buf)?;
 
-        let buf: Vec<_> = buf.into_iter()
-            .map(|f| f as u8)
-            .collect();
+        let buf: Vec<_> = buf.into_iter().map(|f| f as u8).collect();
 
         Ok(buf)
     }
@@ -133,9 +134,7 @@ impl Primitive {
         let mut buf = vec![0; len as usize];
         env.get_boolean_array_region(booleans, 0, &mut buf)?;
 
-        let buf: Vec<_> = buf.into_iter()
-            .map(|f| f == 1)
-            .collect();
+        let buf: Vec<_> = buf.into_iter().map(|f| f == 1).collect();
 
         Ok(buf)
     }
@@ -143,8 +142,8 @@ impl Primitive {
 
 #[cfg(test)]
 mod test {
-    use crate::test::JVM;
     use super::*;
+    use crate::test::JVM;
 
     #[test]
     fn new_int_array() {

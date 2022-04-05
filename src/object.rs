@@ -1,19 +1,20 @@
-use jni::objects::{JObject, JValue, JMethodID, JClass};
-use jni::JNIEnv;
-use jni::errors::Result;
-use jni::signature::{JavaType, Primitive};
 use crate::class::Class;
+use jni::errors::Result;
+use jni::objects::{JClass, JMethodID, JObject, JValue};
+use jni::signature::{JavaType, Primitive};
 use jni::sys::{_jobject, jsize};
+use jni::JNIEnv;
 use thiserror::Error;
 
 /// Describes a Java Object
 #[derive(Clone)]
 pub struct Object<'a> {
     /// The underlying JNI object
-    pub inner:  JObject<'a>,
+    pub inner: JObject<'a>,
     /// The Class of the object
-    pub class:  Class<'a>,
-    pub env:        &'a JNIEnv<'a>
+    pub class: Class<'a>,
+    /// JNI environment
+    pub env: &'a JNIEnv<'a>,
 }
 
 #[allow(clippy::from_over_into)]
@@ -44,7 +45,7 @@ pub enum PrimitiveError<'a> {
     Jni(#[from] jni::errors::Error),
     /// Classes are not the same
     #[error("Expected {0:?}, but found {1:?}")]
-    ClassMismatch(Class<'a>, Class<'a>)
+    ClassMismatch(Class<'a>, Class<'a>),
 }
 
 /// Result returned from functions that retrieve a primitive from the respective primitive's Object equivalent
@@ -58,7 +59,7 @@ pub enum GetArrayError<'a> {
     Jni(#[from] jni::errors::Error),
     /// Class is not an array type
     #[error("Expected {0:?} to be an array, it is not")]
-    NotArray(Class<'a>)
+    NotArray(Class<'a>),
 }
 
 macro_rules! assert_same_class {
@@ -66,7 +67,7 @@ macro_rules! assert_same_class {
         if $a.get_name()?.ne(&$b.get_name()?) {
             return Err(PrimitiveError::ClassMismatch($b, $a.clone()));
         }
-    }
+    };
 }
 
 impl<'a> Object<'a> {
@@ -75,59 +76,127 @@ impl<'a> Object<'a> {
         Self {
             inner: obj,
             class,
-            env
+            env,
         }
     }
 
     /// Get a constructor
-    fn get_constructor(env: &'a JNIEnv<'a>, class: Class<'a>, sig: &str) -> Result<JMethodID<'a>>{
+    fn get_constructor(env: &'a JNIEnv<'a>, class: Class<'a>, sig: &str) -> Result<JMethodID<'a>> {
         env.get_method_id(class.class, "<init>", sig)
     }
 
     /// Create a new java.lang.String
     pub fn new_string<S: AsRef<str>>(env: &'a JNIEnv<'a>, str: S) -> Result<Self> {
-        Ok(Self::new(env, env.new_string(str.as_ref())?.into(), Class::String(env)?))
+        Ok(Self::new(
+            env,
+            env.new_string(str.as_ref())?.into(),
+            Class::String(env)?,
+        ))
     }
 
     /// Create a new java.lang.Byte
     pub fn new_byte_object(env: &'a JNIEnv<'a>, b: u8) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Byte(env)?.class, Self::get_constructor(env, Class::Byte(env)?, "(B)V")?, &[JValue::Byte(b as i8)])?, Class::Byte(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Byte(env)?.class,
+                Self::get_constructor(env, Class::Byte(env)?, "(B)V")?,
+                &[JValue::Byte(b as i8)],
+            )?,
+            Class::Byte(env)?,
+        ))
     }
 
     /// Create a new java.lang.Long
     pub fn new_long_object(env: &'a JNIEnv<'a>, l: i64) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Long(env)?.class, Self::get_constructor(env, Class::Long(env)?, "(J)V")?, &[JValue::Long(l)])?, Class::Long(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Long(env)?.class,
+                Self::get_constructor(env, Class::Long(env)?, "(J)V")?,
+                &[JValue::Long(l)],
+            )?,
+            Class::Long(env)?,
+        ))
     }
 
     /// Create a new java.lang.Integer
     pub fn new_integer_object(env: &'a JNIEnv<'a>, i: i32) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Integer(env)?.class, Self::get_constructor(env, Class::Integer(env)?, "(I)V")?, &[JValue::Int(i)])?, Class::Integer(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Integer(env)?.class,
+                Self::get_constructor(env, Class::Integer(env)?, "(I)V")?,
+                &[JValue::Int(i)],
+            )?,
+            Class::Integer(env)?,
+        ))
     }
 
     /// Create a new java.lang.Float
     pub fn new_float_object(env: &'a JNIEnv<'a>, f: f32) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Float(env)?.class, Self::get_constructor(env, Class::Float(env)?, "(F)V")?, &[JValue::Float(f)])?, Class::Float(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Float(env)?.class,
+                Self::get_constructor(env, Class::Float(env)?, "(F)V")?,
+                &[JValue::Float(f)],
+            )?,
+            Class::Float(env)?,
+        ))
     }
 
     /// Create a new java.lang.Double
     pub fn new_double_object(env: &'a JNIEnv<'a>, d: f64) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Double(env)?.class, Self::get_constructor(env, Class::Double(env)?, "(D)V")?, &[JValue::Double(d)])?, Class::Double(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Double(env)?.class,
+                Self::get_constructor(env, Class::Double(env)?, "(D)V")?,
+                &[JValue::Double(d)],
+            )?,
+            Class::Double(env)?,
+        ))
     }
 
     /// Create a new java.lang.Boolean
     pub fn new_boolean_object(env: &'a JNIEnv<'a>, b: bool) -> Result<Self> {
         let int_val = if b { 1 } else { 0 };
-        Ok(Self::new(env, env.new_object_unchecked(Class::Boolean(env)?.class, Self::get_constructor(env, Class::Boolean(env)?, "(Z)V")?, &[JValue::Bool(int_val)])?, Class::Boolean(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Boolean(env)?.class,
+                Self::get_constructor(env, Class::Boolean(env)?, "(Z)V")?,
+                &[JValue::Bool(int_val)],
+            )?,
+            Class::Boolean(env)?,
+        ))
     }
 
     /// Create a new java.lang.Character
     pub fn new_character_object(env: &'a JNIEnv<'a>, c: u16) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Character(env)?.class, Self::get_constructor(env, Class::Character(env)?, "(C)V")?, &[JValue::Char(c)])?, Class::Character(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Character(env)?.class,
+                Self::get_constructor(env, Class::Character(env)?, "(C)V")?,
+                &[JValue::Char(c)],
+            )?,
+            Class::Character(env)?,
+        ))
     }
 
     /// Create a new java.lang.Short
     pub fn new_short_object(env: &'a JNIEnv<'a>, s: i16) -> Result<Self> {
-        Ok(Self::new(env, env.new_object_unchecked(Class::Short(env)?.class, Self::get_constructor(env, Class::Short(env)?, "(S)V")?, &[JValue::Short(s)])?, Class::Short(env)?))
+        Ok(Self::new(
+            env,
+            env.new_object_unchecked(
+                Class::Short(env)?.class,
+                Self::get_constructor(env, Class::Short(env)?, "(S)V")?,
+                &[JValue::Short(s)],
+            )?,
+            Class::Short(env)?,
+        ))
     }
 
     /// Create an array from a slice of Objects. The caller must guarantee that all Objects contained in the slice are of the same Class as the provided Class
@@ -155,7 +224,9 @@ impl<'a> Object<'a> {
         let len = self.env.get_array_length(self.inner.into_inner())?;
         let mut buf = Vec::with_capacity(len as usize);
         for i in 0..len {
-            let obj = self.env.get_object_array_element(self.inner.into_inner(), i as jsize)?;
+            let obj = self
+                .env
+                .get_object_array_element(self.inner.into_inner(), i as jsize)?;
             let object = Self::new(self.env, obj, object_class.clone());
             buf.push(object);
         }
@@ -178,8 +249,15 @@ impl<'a> Object<'a> {
     pub fn get_byte(&self) -> PrimitiveResult<u8> {
         assert_same_class!(self.class, Class::Byte(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Byte", "byteValue", "()B")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Byte), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Byte", "byteValue", "()B")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Byte),
+            &[],
+        )?;
         Ok(value.b()? as u8)
     }
 
@@ -187,8 +265,15 @@ impl<'a> Object<'a> {
     pub fn get_long(&self) -> PrimitiveResult<i64> {
         assert_same_class!(self.class, Class::Long(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Long", "longValue", "()J")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Long), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Long", "longValue", "()J")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Long),
+            &[],
+        )?;
         Ok(value.j()?)
     }
 
@@ -196,8 +281,15 @@ impl<'a> Object<'a> {
     pub fn get_integer(&self) -> PrimitiveResult<i32> {
         assert_same_class!(self.class, Class::Integer(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Integer", "intValue", "()I")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Int), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Integer", "intValue", "()I")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Int),
+            &[],
+        )?;
         Ok(value.i()?)
     }
 
@@ -205,28 +297,47 @@ impl<'a> Object<'a> {
     pub fn get_float(&self) -> PrimitiveResult<f32> {
         assert_same_class!(self.class, Class::Float(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Float", "floatValue", "()F")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Float), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Float", "floatValue", "()F")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Float),
+            &[],
+        )?;
         Ok(value.f()?)
     }
-
 
     /// Get the double value from this Object. The Object must be of type java.lang.Double
     pub fn get_double(&self) -> PrimitiveResult<f64> {
         assert_same_class!(self.class, Class::Double(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Double", "doubleValue", "()D")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Double), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Double", "doubleValue", "()D")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Double),
+            &[],
+        )?;
         Ok(value.d()?)
     }
-
 
     /// Get the boolean value from this Object. The Object must be of type java.lang.Boolean
     pub fn get_boolean(&self) -> PrimitiveResult<bool> {
         assert_same_class!(self.class, Class::Boolean(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Boolean", "booleanValue", "()Z")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Boolean), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Boolean", "booleanValue", "()Z")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Boolean),
+            &[],
+        )?;
         Ok(value.z()?)
     }
 
@@ -235,8 +346,15 @@ impl<'a> Object<'a> {
     pub fn get_char(&self) -> PrimitiveResult<u16> {
         assert_same_class!(self.class, Class::Character(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Character", "charValue", "()C")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Char), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Character", "charValue", "()C")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Char),
+            &[],
+        )?;
         Ok(value.c()?)
     }
 
@@ -244,14 +362,23 @@ impl<'a> Object<'a> {
     pub fn get_short(&self) -> PrimitiveResult<i16> {
         assert_same_class!(self.class, Class::Short(self.env)?);
 
-        let method = self.env.get_method_id("java/lang/Short", "shortValue", "()S")?;
-        let value = self.env.call_method_unchecked(self.inner, method, JavaType::Primitive(Primitive::Short), &[])?;
+        let method = self
+            .env
+            .get_method_id("java/lang/Short", "shortValue", "()S")?;
+        let value = self.env.call_method_unchecked(
+            self.inner,
+            method,
+            JavaType::Primitive(Primitive::Short),
+            &[],
+        )?;
         Ok(value.s()?)
     }
 
     /// Call java.object.Object#getClass() on `obj`
     pub fn get_class(obj: &Object<'a>, env: &'a JNIEnv<'a>) -> Result<Class<'a>> {
-        let class_object = env.call_method(obj.inner, "getClass", "()Ljava/lang/Class;", &[])?.l()?;
+        let class_object = env
+            .call_method(obj.inner, "getClass", "()Ljava/lang/Class;", &[])?
+            .l()?;
         let class_name = Class::new(env, JClass::from(class_object)).get_name()?;
         Class::for_name(env, &class_name)
     }
@@ -268,7 +395,12 @@ impl<'a> Object<'a> {
 
     /// Check if the current Object is equal to another Object.
     pub fn equals(&self, other: &Object<'a>) -> Result<bool> {
-        let equals = self.env.call_method(self.inner, "equals", "(Ljava/lang/Object;)Z", &[other.into()])?;
+        let equals = self.env.call_method(
+            self.inner,
+            "equals",
+            "(Ljava/lang/Object;)Z",
+            &[other.into()],
+        )?;
         equals.z()
     }
 }
@@ -277,10 +409,10 @@ impl<'a> Object<'a> {
 mod test {
     #![allow(non_snake_case)]
 
-    use crate::test::JVM;
     use super::*;
-    use jni::objects::JString;
     use crate::class::Class;
+    use crate::test::JVM;
+    use jni::objects::JString;
 
     #[test]
     fn new_string() {
@@ -298,7 +430,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let jByte = Object::new_byte_object(&env, 0x1).unwrap();
-        let jbyte = env.call_method(jByte.inner, "byteValue", "()B", &[]).unwrap().b().unwrap();
+        let jbyte = env
+            .call_method(jByte.inner, "byteValue", "()B", &[])
+            .unwrap()
+            .b()
+            .unwrap();
         assert_eq!(0x1, jbyte);
     }
 
@@ -308,7 +444,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let jLong = Object::new_long_object(&env, 10).unwrap();
-        let jlong = env.call_method(jLong.inner, "longValue", "()J", &[]).unwrap().j().unwrap();
+        let jlong = env
+            .call_method(jLong.inner, "longValue", "()J", &[])
+            .unwrap()
+            .j()
+            .unwrap();
         assert_eq!(10, jlong);
     }
 
@@ -318,7 +458,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let jInteger = Object::new_integer_object(&env, 10).unwrap();
-        let jint = env.call_method(jInteger.inner, "intValue", "()I", &[]).unwrap().i().unwrap();
+        let jint = env
+            .call_method(jInteger.inner, "intValue", "()I", &[])
+            .unwrap()
+            .i()
+            .unwrap();
         assert_eq!(10, jint);
     }
 
@@ -328,7 +472,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let jFloat = Object::new_float_object(&env, 10.5).unwrap();
-        let jfloat = env.call_method(jFloat.inner, "floatValue", "()F", &[]).unwrap().f().unwrap();
+        let jfloat = env
+            .call_method(jFloat.inner, "floatValue", "()F", &[])
+            .unwrap()
+            .f()
+            .unwrap();
         assert_eq!(10.5, jfloat);
     }
 
@@ -338,7 +486,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let jDouble = Object::new_double_object(&env, 10.5).unwrap();
-        let jdouble = env.call_method(jDouble.inner, "doubleValue", "()D", &[]).unwrap().d().unwrap();
+        let jdouble = env
+            .call_method(jDouble.inner, "doubleValue", "()D", &[])
+            .unwrap()
+            .d()
+            .unwrap();
         assert_eq!(10.5, jdouble);
     }
 
@@ -348,11 +500,19 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let jBoolean = Object::new_boolean_object(&env, true).unwrap();
-        let jboolean = env.call_method(jBoolean.inner, "booleanValue", "()Z", &[]).unwrap().z().unwrap();
+        let jboolean = env
+            .call_method(jBoolean.inner, "booleanValue", "()Z", &[])
+            .unwrap()
+            .z()
+            .unwrap();
         assert_eq!(true, jboolean);
 
         let jBoolean = Object::new_boolean_object(&env, false).unwrap();
-        let jboolean = env.call_method(jBoolean.inner, "booleanValue", "()Z", &[]).unwrap().z().unwrap();
+        let jboolean = env
+            .call_method(jBoolean.inner, "booleanValue", "()Z", &[])
+            .unwrap()
+            .z()
+            .unwrap();
         assert_eq!(false, jboolean);
     }
 
@@ -362,7 +522,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let character = Object::new_character_object(&env, 123).unwrap();
-        let jchar = env.call_method(character.inner, "charValue", "()C", &[]).unwrap().c().unwrap();
+        let jchar = env
+            .call_method(character.inner, "charValue", "()C", &[])
+            .unwrap()
+            .c()
+            .unwrap();
         assert_eq!(123, jchar);
     }
 
@@ -372,7 +536,11 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let short = Object::new_short_object(&env, 123).unwrap();
-        let jshort = env.call_method(short.inner, "shortValue", "()S", &[]).unwrap().s().unwrap();
+        let jshort = env
+            .call_method(short.inner, "shortValue", "()S", &[])
+            .unwrap()
+            .s()
+            .unwrap();
         assert_eq!(123, jshort);
     }
 
@@ -381,14 +549,26 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
-        let boolean = &[Object::new_boolean_object(&env, true).unwrap(), Object::new_boolean_object(&env, false).unwrap()];
-        let boolean_array = Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
+        let boolean = &[
+            Object::new_boolean_object(&env, true).unwrap(),
+            Object::new_boolean_object(&env, false).unwrap(),
+        ];
+        let boolean_array =
+            Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
 
-        let size = env.get_array_length(boolean_array.inner.into_inner()).unwrap();
+        let size = env
+            .get_array_length(boolean_array.inner.into_inner())
+            .unwrap();
         assert_eq!(2, size);
 
-        let zeroth_element = env.get_object_array_element(boolean_array.inner.into_inner(), 0i32).unwrap();
-        let bool_value = env.call_method(zeroth_element, "booleanValue", "()Z", &[]).unwrap().z().unwrap();
+        let zeroth_element = env
+            .get_object_array_element(boolean_array.inner.into_inner(), 0i32)
+            .unwrap();
+        let bool_value = env
+            .call_method(zeroth_element, "booleanValue", "()Z", &[])
+            .unwrap()
+            .z()
+            .unwrap();
 
         assert_eq!(true, bool_value);
     }
@@ -398,11 +578,16 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
-        let boolean = &[Object::new_boolean_object(&env, true).unwrap(), Object::new_boolean_object(&env, false).unwrap()];
-        let boolean_array = Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
+        let boolean = &[
+            Object::new_boolean_object(&env, true).unwrap(),
+            Object::new_boolean_object(&env, false).unwrap(),
+        ];
+        let boolean_array =
+            Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
 
         let array = boolean_array.get_array().unwrap();
-        let booleans: Vec<_> = array.into_iter()
+        let booleans: Vec<_> = array
+            .into_iter()
             .map(|f| f.get_boolean().unwrap())
             .collect();
 
@@ -421,7 +606,7 @@ mod test {
         let err = array.err().unwrap();
         let is_correct_err = match err {
             GetArrayError::Jni(_) => false,
-            GetArrayError::NotArray(_) => true
+            GetArrayError::NotArray(_) => true,
         };
 
         assert!(is_correct_err);
@@ -432,8 +617,12 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
-        let boolean = &[Object::new_boolean_object(&env, true).unwrap(), Object::new_boolean_object(&env, false).unwrap()];
-        let boolean_array = Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
+        let boolean = &[
+            Object::new_boolean_object(&env, true).unwrap(),
+            Object::new_boolean_object(&env, false).unwrap(),
+        ];
+        let boolean_array =
+            Object::new_array(&env, Class::Boolean(&env).unwrap(), boolean).unwrap();
 
         let is_array = boolean_array.is_array();
         assert!(is_array.is_ok());
@@ -457,7 +646,9 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
 
         let string = Object::new_string(&env, "Foo").unwrap();
-        assert!(string.instance_of_class(&string.get_class_of_self().unwrap()).unwrap());
+        assert!(string
+            .instance_of_class(&string.get_class_of_self().unwrap())
+            .unwrap());
     }
 
     #[test]
@@ -466,7 +657,9 @@ mod test {
         let env = jvm.attach_current_thread().unwrap();
         let string = Object::new_string(&env, "Foo").unwrap();
 
-        assert!(string.instance_of_class(&Class::String(&env).unwrap()).unwrap());
+        assert!(string
+            .instance_of_class(&Class::String(&env).unwrap())
+            .unwrap());
         assert!(string.instance_of_same_object(&string).unwrap());
     }
 

@@ -1,20 +1,20 @@
-use crate::object::Object;
+use crate::abstractions::iterator::Iterator;
 use crate::class::Class;
-use jni::JNIEnv;
+use crate::object::Object;
 use jni::errors::Result;
 use jni::objects::JValue;
-use crate::abstractions::iterator::Iterator;
 use jni::sys::_jobject;
+use jni::JNIEnv;
 
 /// Wrapper around `java.util.Set`
 pub struct Set<'a> {
     /// The Set itself
-    pub inner:  Object<'a>,
+    pub inner: Object<'a>,
 
     /// The Class contained in the Set
-    pub class:  Class<'a>,
+    pub class: Class<'a>,
 
-    env:        &'a JNIEnv<'a>
+    env: &'a JNIEnv<'a>,
 }
 
 #[allow(clippy::from_over_into)]
@@ -36,7 +36,7 @@ impl<'a> Set<'a> {
         Self {
             inner: object,
             class,
-            env
+            env,
         }
     }
 
@@ -46,27 +46,44 @@ impl<'a> Set<'a> {
         Ok(Self {
             inner: Object::new(env, hashset, Class::HashSet(env)?),
             class: v_class,
-            env
+            env,
         })
     }
 
     /// Constructs a new, empty set; the backing HashMap instance has the specified initial capacity and default load factor (0.75).
-    pub fn hashset_with_capacity(env: &'a JNIEnv<'a>, v_class: Class<'a>, initial_capacity: i32) -> Result<Self> {
-        let hashset = env.new_object("java/util/HashSet", "(I)V", &[JValue::Int(initial_capacity)])?;
+    pub fn hashset_with_capacity(
+        env: &'a JNIEnv<'a>,
+        v_class: Class<'a>,
+        initial_capacity: i32,
+    ) -> Result<Self> {
+        let hashset = env.new_object(
+            "java/util/HashSet",
+            "(I)V",
+            &[JValue::Int(initial_capacity)],
+        )?;
         Ok(Self {
             inner: Object::new(env, hashset, Class::HashSet(env)?),
             class: v_class,
-            env
+            env,
         })
     }
 
     /// Constructs a new, empty set; the backing HashMap instance has the specified initial capacity and the specified load factor.
-    pub fn hashset_with_capacity_and_load_factor(env: &'a JNIEnv<'a>, v_class: Class<'a>, initial_capacity: i32, load_factor: f32) -> Result<Self> {
-        let hashset = env.new_object("java/util/HashSet", "(IF)V", &[JValue::Int(initial_capacity), JValue::Float(load_factor)])?;
+    pub fn hashset_with_capacity_and_load_factor(
+        env: &'a JNIEnv<'a>,
+        v_class: Class<'a>,
+        initial_capacity: i32,
+        load_factor: f32,
+    ) -> Result<Self> {
+        let hashset = env.new_object(
+            "java/util/HashSet",
+            "(IF)V",
+            &[JValue::Int(initial_capacity), JValue::Float(load_factor)],
+        )?;
         Ok(Self {
             inner: Object::new(env, hashset, Class::HashSet(env)?),
             class: v_class,
-            env
+            env,
         })
     }
 
@@ -78,7 +95,9 @@ impl<'a> Set<'a> {
 
     /// Returns an iterator over the elements in this set.
     pub fn iterator(&self) -> Result<Iterator<'a>> {
-        let iterator = self.env.call_method(self.inner.inner, "iterator", "()Ljava/util/Iterator;", &[])?;
+        let iterator =
+            self.env
+                .call_method(self.inner.inner, "iterator", "()Ljava/util/Iterator;", &[])?;
         let object = Object::new(self.env, iterator.l()?, Class::Iterator(self.env)?);
         let iterator = Iterator::new(self.env, object, self.class.clone());
         Ok(iterator)

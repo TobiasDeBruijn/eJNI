@@ -1,17 +1,17 @@
-use crate::object::Object;
 use crate::class::Class;
-use jni::JNIEnv;
+use crate::object::Object;
 use jni::errors::Result;
-use jni::strings::JNIString;
 use jni::objects::{JString, JValue};
+use jni::strings::JNIString;
 use jni::sys::_jobject;
+use jni::JNIEnv;
 
 /// Wrapper around `java.lang.String`
 #[derive(Clone)]
 pub struct JavaString<'a> {
     /// The underlying Object
-    pub inner:  Object<'a>,
-    env:        &'a JNIEnv<'a>
+    pub inner: Object<'a>,
+    env: &'a JNIEnv<'a>,
 }
 
 #[allow(clippy::from_over_into)]
@@ -31,16 +31,16 @@ impl<'a> Into<*mut _jobject> for JavaString<'a> {
 impl<'a> JavaString<'a> {
     /// Create a JavaString wrapper. The caller must guarantee that the passed in Object is a java.lang.String and is not null.
     pub fn new(env: &'a JNIEnv<'a>, object: Object<'a>) -> Self {
-        Self {
-            inner: object,
-            env
-        }
+        Self { inner: object, env }
     }
 
     /// Turn a Rust String into a JavaString
     pub fn from_rust<S: Into<JNIString>>(env: &'a JNIEnv<'a>, s: S) -> Result<Self> {
         let string = env.new_string(s)?;
-        Ok(Self::new(env, Object::new(env, string.into(), Class::String(env)?)))
+        Ok(Self::new(
+            env,
+            Object::new(env, string.into(), Class::String(env)?),
+        ))
     }
 
     /// Turn a JavaString into a Rust String

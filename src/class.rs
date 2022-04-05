@@ -1,18 +1,18 @@
-use std::fmt::{Debug, Formatter};
-use jni::descriptors::Desc;
-use jni::objects::{JClass, JObject};
-use jni::errors::Result;
-use jni::JNIEnv;
 use crate::abstractions::JavaString;
 use crate::object::Object;
+use jni::descriptors::Desc;
+use jni::errors::Result;
+use jni::objects::{JClass, JObject};
 use jni::sys::_jobject;
+use jni::JNIEnv;
+use std::fmt::{Debug, Formatter};
 
 /// Class describes java.lang.Class, with getters for often used classes from the Java standard library.
 #[derive(Clone)]
 pub struct Class<'a> {
     /// The underlying JClass
-    pub class:  JClass<'a>,
-    env:        &'a JNIEnv<'a>
+    pub class: JClass<'a>,
+    env: &'a JNIEnv<'a>,
 }
 
 impl<'a> Debug for Class<'a> {
@@ -45,10 +45,7 @@ impl<'a> Class<'a> {
 
     /// Create a new Class from it's raw compontents
     pub fn new(env: &'a JNIEnv<'a>, class: JClass<'a>) -> Self {
-        Self {
-            env,
-            class
-        }
+        Self { env, class }
     }
 
     /// java.lang.Byte
@@ -83,7 +80,7 @@ impl<'a> Class<'a> {
 
     /// java.lang.Character
     pub fn Character(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env,env.find_class("java/lang/Character")?))
+        Ok(Self::new(env, env.find_class("java/lang/Character")?))
     }
 
     /// java.lang.Long
@@ -158,7 +155,10 @@ impl<'a> Class<'a> {
 
     /// java.lang.reflect.Constructor
     pub fn Constructor(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/lang/reflect/Constructor")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/lang/reflect/Constructor")?,
+        ))
     }
 
     /// java.util.Uuid
@@ -188,7 +188,7 @@ impl<'a> Class<'a> {
 
     /// java.util.Queue
     pub fn Queue(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env,env.find_class("java/util/Queue")?))
+        Ok(Self::new(env, env.find_class("java/util/Queue")?))
     }
 
     /// java.util.Random
@@ -313,27 +313,42 @@ impl<'a> Class<'a> {
 
     /// java.util.concurrent.atomic.AtomicInteger
     pub fn AtomicInteger(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicInteger")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicInteger")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicLong
     pub fn AtomicLong(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicLong")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicLong")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicReference
     pub fn AtomicReference(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicReference")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicReference")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicIntegerArray
     pub fn AtomicIntegerArray(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicIntegerArray")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicIntegerArray")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicIntegerFieldUpdater
     pub fn AtomicIntegerFieldUpdater(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicIntegerFieldUpdater")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicIntegerFieldUpdater")?,
+        ))
     }
 
     /// java.util.Data
@@ -348,62 +363,98 @@ impl<'a> Class<'a> {
 
     /// java.util.concurrent.atomic.AtomicLongArray
     pub fn AtomicLongArray(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicLongArray")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicLongArray")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicLongFieldUpdater
     pub fn AtomicLongFieldUpdater(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicLongFieldUpdater")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicLongFieldUpdater")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicMarkableReference
     pub fn AtomicMarkableReference(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicMarkableReference")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicMarkableReference")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicReferenceArray
     pub fn AtomicReferenceArray(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicReferenceArray")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicReferenceArray")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.AtomicReferenceFieldUpdater
     pub fn AtomicReferenceFieldUpdater(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/AtomicReferenceFieldUpdater")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/AtomicReferenceFieldUpdater")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.DoubleAccumulator
     pub fn DoubleAccumulator(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/DoubleAccumulator")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/DoubleAccumulator")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.DoubleAdder
     pub fn DoubleAdder(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/DoubleAdder")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/DoubleAdder")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.LongAccumulator
     pub fn LongAccumulator(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/LongAccumulator")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/LongAccumulator")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.LongAdder
     pub fn LongAdder(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/LongAdder")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/LongAdder")?,
+        ))
     }
 
     /// java.util.concurrent.atomic.Striped64
     pub fn Striped64(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/atomic/Striped64")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/atomic/Striped64")?,
+        ))
     }
 
     /// java.util.concurrent.Future
     pub fn Future(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/Future")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/Future")?,
+        ))
     }
 
     /// java.util.concurrent.TimeUnit
     pub fn TimeUnit(env: &'a JNIEnv<'a>) -> Result<Self> {
-        Ok(Self::new(env, env.find_class("java/util/concurrent/TimeUnit")?))
+        Ok(Self::new(
+            env,
+            env.find_class("java/util/concurrent/TimeUnit")?,
+        ))
     }
 
     /// java.util.regex.Pattern
@@ -472,62 +523,108 @@ impl<'a> Class<'a> {
         let maybe_superclass = self.env.get_superclass(self.class)?;
         match maybe_superclass.is_null() {
             true => Ok(None),
-            false => Ok(Some(Class::new(self.env, maybe_superclass)))
+            false => Ok(Some(Class::new(self.env, maybe_superclass))),
         }
     }
 
     /// Get the Class name. Invokes `Class#getName()`
     pub fn get_name(&self) -> Result<String> {
-        let class_name_object = self.env.call_method(self.class, "getName", "()Ljava/lang/String;", &[])?.l()?;
-        let class_name_string = JavaString::new(self.env, Object::new(self.env, class_name_object, Class::String(self.env)?));
+        let class_name_object = self
+            .env
+            .call_method(self.class, "getName", "()Ljava/lang/String;", &[])?
+            .l()?;
+        let class_name_string = JavaString::new(
+            self.env,
+            Object::new(self.env, class_name_object, Class::String(self.env)?),
+        );
         class_name_string.into_rust()
     }
 
     /// The Java primitive `int`
     pub fn int(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "int")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "int")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `long`
     pub fn long(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "long")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "long")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `byte`
     pub fn byte(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "byte")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "byte")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `boolean`
     pub fn boolean(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "boolean")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "boolean")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `float`
     pub fn float(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "float")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "float")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `double`
     pub fn double(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "double")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "double")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `short`
     pub fn short(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "short")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "short")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 
     /// The Java primitive `char`
     pub fn char(env: &'a JNIEnv<'a>) -> Result<Self> {
-        let int_class = env.call_static_method("java/lang/Class", "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", &[JavaString::from_rust(env, "char")?.into()])?;
+        let int_class = env.call_static_method(
+            "java/lang/Class",
+            "getPrimitiveClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;",
+            &[JavaString::from_rust(env, "char")?.into()],
+        )?;
         Ok(Self::new(env, JClass::from(int_class.l()?)))
     }
 }
@@ -535,8 +632,8 @@ impl<'a> Class<'a> {
 #[cfg(test)]
 mod test {
     #![allow(non_snake_case)]
-    use crate::test::*;
     use super::Class;
+    use crate::test::*;
     use jni::errors::Result;
 
     #[test]
@@ -1102,7 +1199,7 @@ mod test {
     fn for_name_dot() {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
-        assert!(Class::for_name(&env,"java.lang.String").is_ok());
+        assert!(Class::for_name(&env, "java.lang.String").is_ok());
     }
 
     #[test]
@@ -1117,7 +1214,8 @@ mod test {
         let jvm = JVM.lock().unwrap();
         let env = jvm.attach_current_thread().unwrap();
 
-        let hashmap = crate::abstractions::Map::hashmap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
+        let hashmap =
+            crate::abstractions::Map::hashmap(&env, Class::Object(&env)?, Class::Object(&env)?)?;
 
         let is_compat = hashmap.inner.class.is_compatible(&Class::Map(&env)?)?;
         assert!(is_compat);
